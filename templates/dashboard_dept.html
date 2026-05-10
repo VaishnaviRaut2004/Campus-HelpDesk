@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 slide-in">
+    <div class="col-12">
+        <div class="glass-card p-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h2 class="text-white fw-bold mb-0"><i class="fa-solid fa-building-user text-primary"></i> {{ dept_name }} Department</h2>
+                <p class="text-secondary mb-0">Assigned Routing Tasks Dashboard</p>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-primary p-2 fs-6">Active Tasks: {{ complaints|length }}</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row slide-in" style="animation-delay: 0.1s;">
+    <div class="col-12">
+        <div class="glass-card p-5">
+            {% if complaints %}
+            <div class="table-responsive">
+                <table class="table table-glass align-middle">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Date</th>
+                            <th>User</th>
+                            <th>Description</th>
+                            <th>SLA</th>
+                            <th>Sentiment</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in complaints %}
+                        <tr>
+                            <td>#{{ c.id }}</td>
+                            <td>{{ c.date.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ c.user.name }}</td>
+                            <td class="text-truncate" style="max-width: 250px;">{{ c.text }}</td>
+                            <td>
+                                {% if c.sla_deadline %}
+                                    {% set hours_left = (c.sla_deadline - now).total_seconds() / 3600 %}
+                                    {% if c.status == 'Resolved' %}
+                                        <span class="badge bg-success">Resolved</span>
+                                    {% elif hours_left < 0 %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                    {% elif hours_left < 6 %}
+                                        <span class="badge bg-warning text-dark">Near Deadline</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Within SLA</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if c.sentiment == 'Angry' %}
+                                    <span class="badge bg-danger">Angry</span>
+                                {% elif c.sentiment == 'Frustrated' %}
+                                    <span class="badge bg-warning text-dark">Frustrated</span>
+                                {% elif c.sentiment == 'Positive' %}
+                                    <span class="badge bg-success">Positive</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Neutral</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if c.priority == 'High' %}
+                                    <span class="badge badge-urgent"><i class="fa-solid fa-bolt"></i> High</span>
+                                {% else %}
+                                    <span class="badge bg-info">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if c.status == 'Pending' %}
+                                    <span class="badge badge-pending">Pending</span>
+                                {% elif c.status == 'In Progress' %}
+                                    <span class="badge badge-progress">In Progress</span>
+                                {% elif c.status == 'Resolved' %}
+                                    <span class="badge badge-resolved">Resolved</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button type="button" class="btn btn-sm btn-primary rounded-pill px-3" data-bs-toggle="modal" data-bs-target="#actionModal{{ c.id }}">
+                                    Manage
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fa-solid fa-mug-hot fa-3x text-secondary mb-3"></i>
+                    <h5 class="text-secondary">No active complaints assigned to this department.</h5>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Modals (moved outside animated containers to fix clickability) -->
+{% if complaints %}
+    {% for c in complaints %}
+    <div class="modal fade" id="actionModal{{ c.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content glass-card" style="border:1px solid rgba(255,255,255,0.2);">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title">Manage Complaint #{{ c.id }}</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form action="{{ url_for('update_status', complaint_id=c.id) }}" method="POST">
+                    <div class="modal-body border-0">
+                        <div class="p-3 mb-3" style="background: rgba(0,0,0,0.2); border-radius: 0.5rem;">
+                            <strong>From:</strong> {{ c.user.name }} <br>
+                            <strong>Issue:</strong> {{ c.text }}
+                            {% if c.confidence_score %}
+                            <hr style="border-color: rgba(255,255,255,0.1); margin: 0.5rem 0;">
+                            <small class="text-info">
+                                <i class="fa-solid fa-robot"></i> AI Confidence: {{ c.confidence_score }}%
+                                &nbsp;|&nbsp; 
+                                Sentiment: 
+                                {% if c.sentiment == 'Angry' %}<span class="text-danger">Angry</span>
+                                {% elif c.sentiment == 'Frustrated' %}<span class="text-warning">Frustrated</span>
+                                {% elif c.sentiment == 'Positive' %}<span class="text-success">Positive</span>
+                                {% else %}<span class="text-secondary">Neutral</span>{% endif %}
+                            </small>
+                            {% endif %}
+                            
+                            {% if c.attachments %}
+                            <div class="mt-3">
+                                <strong class="text-secondary"><i class="fa-solid fa-paperclip"></i> Attachments:</strong><br>
+                                {% for att in c.attachments %}
+                                    {% if att.filename.endswith('.jpg') or att.filename.endswith('.png') or att.filename.endswith('.jpeg') %}
+                                        <img src="{{ url_for('static', filename='uploads/complaints/' + att.filename) }}" class="img-thumbnail mt-2" style="max-height: 150px; background: transparent; border-color: rgba(255,255,255,0.2);">
+                                        <br>
+                                    {% endif %}
+                                    <a href="{{ url_for('download_attachment', attachment_id=att.id) }}" class="btn btn-sm btn-outline-info mt-2" target="_blank"><i class="fa-solid fa-download"></i> {{ att.original_filename }}</a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-secondary">Update Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Pending" {% if c.status == 'Pending' %}selected{% endif %}>Pending</option>
+                                <option value="In Progress" {% if c.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                <option value="Resolved" {% if c.status == 'Resolved' %}selected{% endif %}>Resolved</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-2">
+                            <label class="form-label text-secondary">Add Remark / Update</label>
+                            <textarea name="remarks" class="form-control" rows="3" placeholder="Action taken or message for user..."></textarea>
+                        </div>
+                        
+                        {% if c.remarks %}
+                        <div class="mt-3">
+                            <small class="text-secondary">Previous Remarks:</small>
+                            <div class="p-2 mt-1" style="background: rgba(255,255,255,0.05); font-size: 0.85rem; border-radius: 0.25rem;">
+                                {{ c.remarks | replace('\n', '<br>') | safe }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <a href="{{ url_for('chat', complaint_id=c.id) }}" class="btn btn-info rounded-pill"><i class="fa-solid fa-comments"></i> Live Chat</a>
+                        <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary rounded-pill">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+{% endif %}
+{% endblock %}

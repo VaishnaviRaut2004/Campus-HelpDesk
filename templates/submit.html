@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center h-100">
+    <div class="col-md-8">
+        <div class="glass-card p-5 slide-in">
+            <h2 class="text-white fw-bold mb-3"><i class="fa-solid fa-paper-plane text-primary"></i> Submit an Issue</h2>
+            <p class="text-secondary mb-4">Describe the problem and our AI will automatically classify and route it to the appropriate department.</p>
+            
+            <form action="{{ url_for('submit_complaint') }}" method="POST" enctype="multipart/form-data">
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Complaint Description</label>
+                    <textarea name="text" rows="5" class="form-control form-control-lg" required placeholder="E.g., The printer on the 2nd floor is broken..."></textarea>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-secondary"><i class="fa-solid fa-paperclip"></i> Attach File (Optional)</label>
+                    <input class="form-control" type="file" name="attachment" accept=".jpg,.jpeg,.png,.pdf,.docx" style="background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid rgba(255, 255, 255, 0.1);">
+                    <div class="form-text text-secondary">Supported: JPG, PNG, PDF, DOCX (Max 10MB)</div>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg rounded-pill fw-bold px-5">Submit to AI Router <i class="fa-solid fa-arrow-right ms-2"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

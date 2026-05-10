@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+/* Dashboard Specific Styles */
+.kpi-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+.kpi-card:hover {
+    transform: translateY(-5px);
+    background: rgba(255, 255, 255, 0.08);
+}
+.kpi-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin: 10px 0;
+}
+.chart-container {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 15px;
+    padding: 15px;
+    height: 350px;
+}
+
+/* PDF Print Export Styles */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    .navbar, .btn, .toast-container {
+        display: none !important;
+    }
+    .glass-card, .chart-container, .kpi-card {
+        background: transparent !important;
+        border: 1px solid #ccc !important;
+        backdrop-filter: none !important;
+        box-shadow: none !important;
+        color: black !important;
+    }
+    .text-white, .text-info, .text-danger, .text-warning, .text-success {
+        color: black !important;
+    }
+    canvas {
+        max-width: 100% !important;
+    }
+    .container {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    @page { margin: 1cm; }
+}
+</style>
+
+<div class="row mb-4 slide-in" id="analyticsHeader">
+    <div class="col-12 d-flex justify-content-between align-items-center">
+        <h2 class="text-white fw-bold"><i class="fa-solid fa-chart-pie text-info"></i> Enterprise Analytics Center</h2>
+        <div>
+            <a href="{{ url_for('export_csv') }}" class="btn btn-outline-success rounded-pill me-2"><i class="fa-solid fa-file-csv"></i> Export CSV</a>
+            <button onclick="window.print()" class="btn btn-outline-danger rounded-pill"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-secondary rounded-pill ms-2">Back to Admin</a>
+        </div>
+    </div>
+    <div class="col-12 text-secondary d-none d-print-block mt-2">
+        <p>Report Generated: {{ now.strftime('%Y-%m-%d %H:%M') }} | SmartRoute Analytics</p>
+    </div>
+</div>
+
+<!-- KPI Cards -->
+<div class="row mb-4 slide-in" style="animation-delay: 0.1s;">
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <h6 class="text-secondary text-uppercase">Total Complaints</h6>
+            <div class="kpi-number text-primary" id="kpiTotal">...</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <h6 class="text-secondary text-uppercase">Pending</h6>
+            <div class="kpi-number text-warning" id="kpiPending">...</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card">
+            <h6 class="text-secondary text-uppercase">Resolved</h6>
+            <div class="kpi-number text-success" id="kpiResolved">...</div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="kpi-card border-danger">
+            <h6 class="text-secondary text-uppercase">SLA Breaches</h6>
+            <div class="kpi-number text-danger" id="kpiOverdue">...</div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts -->
+<div class="row mb-4 slide-in" style="animation-delay: 0.2s;">
+    <div class="col-md-6 mb-3">
+        <div class="chart-container d-flex flex-column">
+            <h5 class="text-white mb-3">Sentiment Distribution</h5>
+            <div class="flex-grow-1 position-relative">
+                <canvas id="sentimentChart"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="chart-container d-flex flex-column">
+            <h5 class="text-white mb-3">Department Load</h5>
+            <div class="flex-grow-1 position-relative">
+                <canvas id="deptChart"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ url_for('static', filename='js/analytics.js') }}"></script>
+{% endblock %}

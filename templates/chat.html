@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center h-100">
+    <div class="col-md-10">
+        <div class="glass-card slide-in p-4">
+            <div class="d-flex justify-content-between border-bottom border-secondary pb-3 mb-3">
+                <h4 class="text-white"><i class="fa-solid fa-comments text-info"></i> Ticket #{{ complaint.id }} Discussion</h4>
+                <a href="{{ url_for('dept_dashboard') if current_user.role == 'Department' else url_for('view_status') }}" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-arrow-left"></i> Back</a>
+            </div>
+            
+            <div class="row">
+                <!-- Chat Window -->
+                <div class="col-md-8">
+                    <div id="chat-window" class="p-3 mb-3" style="height: 500px; overflow-y: auto; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">
+                        {% for msg in messages %}
+                        <div class="mb-3 d-flex {% if msg.sender_id == current_user.id %}justify-content-end{% endif %}">
+                            <div class="p-3 rounded {% if msg.sender_id == current_user.id %}bg-primary text-white{% else %}bg-secondary text-white{% endif %}" style="max-width: 75%;">
+                                <div class="d-flex justify-content-between mb-1" style="font-size: 0.8rem; opacity: 0.8;">
+                                    <strong>{% if msg.sender.role == 'Department' %}<i class="fa-solid fa-user-tie"></i> Staff{% else %}<i class="fa-solid fa-user"></i> Student{% endif %}</strong>
+                                    <span class="ms-3">{{ msg.timestamp.strftime('%H:%M') }}</span>
+                                </div>
+                                <div>{{ msg.text }}</div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <form id="chat-form" class="d-flex">
+                        <input type="text" id="chat-input" class="form-control me-2 glass-input" placeholder="Type a message..." required autocomplete="off" style="background: rgba(255,255,255,0.05); color: white;">
+                        <button type="submit" class="btn btn-primary px-4"><i class="fa-solid fa-paper-plane"></i> Send</button>
+                    </form>
+                </div>
+                
+                <!-- Ticket Details Sidebar -->
+                <div class="col-md-4">
+                    <div class="p-3 rounded border border-secondary" style="background: rgba(255,255,255,0.05);">
+                        <h6 class="text-info">Complaint Details</h6>
+                        <hr class="border-secondary">
+                        <p><strong>Department:</strong> {{ complaint.department.name }}</p>
+                        <p><strong>Priority:</strong> 
+                            {% if complaint.priority == 'High' %}<span class="badge bg-danger">High</span>{% else %}<span class="badge bg-secondary">Normal</span>{% endif %}
+                        </p>
+                        <p><strong>Status:</strong> {{ complaint.status }}</p>
+                        <p><strong>Original Issue:</strong><br><small class="text-secondary">{{ complaint.text }}</small></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+<script>
+    var chatSocket = io();
+    var complaintId = {{ complaint.id }};
+    var currentUserId = {{ current_user.id }};
+    
+    chatSocket.on('connect', function() {
+        chatSocket.emit('join_chat', {complaint_id: complaintId});
+    });
+    
+    // Auto-scroll to bottom on load
+    var chatWindow = document.getElementById('chat-window');
+    chatWindow.scrollTop = chatWindow.scrollHeight;
+    
+    chatSocket.on('new_message', function(data) {
+        let isMe = data.sender_id === currentUserId;
+        let alignment = isMe ? 'justify-content-end' : '';
+        let bgClass = isMe ? 'bg-primary' : 'bg-secondary';
+        let icon = data.sender_role === 'Department' ? '<i class="fa-solid fa-user-tie"></i> Staff' : '<i class="fa-solid fa-user"></i> Student';
+        
+        let msgHtml = `
+        <div class="mb-3 d-flex ${alignment}">
+            <div class="p-3 rounded ${bgClass} text-white slide-in" style="max-width: 75%;">
+                <div class="d-flex justify-content-between mb-1" style="font-size: 0.8rem; opacity: 0.8;">
+                    <strong>${icon}</strong>
+                    <span class="ms-3">${data.timestamp}</span>
+                </div>
+                <div>${data.text}</div>
+            </div>
+        </div>`;
+        
+        chatWindow.insertAdjacentHTML('beforeend', msgHtml);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    });
+    
+    document.getElementById('chat-form').onsubmit = function(e) {
+        e.preventDefault();
+        let input = document.getElementById('chat-input');
+        if (input.value.trim() !== '') {
+            chatSocket.emit('send_message', {
+                complaint_id: complaintId,
+                text: input.value
+            });
+            input.value = '';
+        }
+    };
+</script>
+{% endblock %}

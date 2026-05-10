@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center h-100 align-items-center">
+    <div class="col-md-5">
+        <div class="glass-card p-5 slide-in">
+            <h2 class="text-center mb-4 text-white fw-bold"><i class="fa-solid fa-lock text-primary"></i> Login</h2>
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Email address</label>
+                    <input type="email" name="email" class="form-control form-control-lg" required placeholder="name@example.com">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Password</label>
+                    <input type="password" name="password" class="form-control form-control-lg" required placeholder="••••••••">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label text-secondary">Role</label>
+                    <select name="role" class="form-control form-control-lg" required>
+                        <option value="User">Student / User</option>
+                        <option value="Admin">Administrator</option>
+                        <option value="IT">IT Department</option>
+                        <option value="Maintenance">Maintenance Department</option>
+                        <option value="HR">HR Department</option>
+                        <option value="Finance">Finance Department</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold">Sign In</button>
+            </form>
+            <div class="text-center mt-3">
+                <a href="{{ url_for('forgot_password') }}" class="text-info text-decoration-none small"><i class="fa-solid fa-key"></i> Forgot Password?</a>
+            </div>
+            <div class="text-center mt-4">
+                <p class="text-secondary">Don't have an account? <a href="{{ url_for('register') }}" class="text-primary text-decoration-none">Register here</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

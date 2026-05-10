@@ -1,0 +1,57 @@
+text,department
+"My computer is not turning on.",IT
+"The internet connection is very slow.",IT
+"I need a new mouse and keyboard.",IT
+"The printer on the second floor is out of paper.",IT
+"My email account is locked.",IT
+"I cannot log into the VPN.",IT
+"The projector in the conference room is broken.",IT
+"Software installation request for Excel.",IT
+"The server is down and I cannot access my files.",IT
+"Can someone help me set up my new monitor?",IT
+"I am getting a blue screen error.",IT
+"My laptop battery drains in 10 minutes.",IT
+"Wi-Fi keeps disconnecting in the lobby.",IT
+"Need help connecting to the wireless display.",IT
+"The AC in my room is leaking.",Maintenance
+"There is a huge stain on the carpet.",Maintenance
+"The elevator is making a weird noise.",Maintenance
+"The bathroom sink is clogged.",Maintenance
+"A lightbulb is burnt out in the hallway.",Maintenance
+"The door handle is loose on the main entrance.",Maintenance
+"Water is leaking from the ceiling.",Maintenance
+"The heater is not working in my office.",Maintenance
+"Need someone to fix the broken window.",Maintenance
+"The trash can is overflowing.",Maintenance
+"The lock on my desk drawer is stuck.",Maintenance
+"There is a bad smell coming from the vent.",Maintenance
+"The water fountain is broken.",Maintenance
+"I need a copy of my payslip.",Finance
+"My salary was not credited this month.",Finance
+"Reimbursement for travel expenses.",Finance
+"Can I get the tax declaration form?",Finance
+"I have a question about my bonus.",Finance
+"Need to update my bank account details.",Finance
+"When is the next payday?",Finance
+"Discrepancy in my last paycheck.",Finance
+"Need help understanding my tax deductions.",Finance
+"How do I submit an expense report?",Finance
+"Query regarding the provident fund setup.",Finance
+"Medical insurance claim is pending.",Finance
+"I need to apply for sick leave.",HR
+"What is the policy for maternity leave?",HR
+"I have a conflict with my manager.",HR
+"Need to update my emergency contact info.",HR
+"How do I access the employee handbook?",HR
+"Question about the annual performance review.",HR
+"Can I work from home next week?",HR
+"I want to refer a friend for the open position.",HR
+"My ID badge is not working.",HR
+"Need confirmation of employment letter.",HR
+"Reporting a harassment incident.",HR
+"Resignation process query.",HR
+"Updating my marital status for benefits.",HR
+"There is an error in my tuition fee receipt.",Finance
+"My scholarship disbursement is delayed.",Finance
+"I need a refund for my tuition fee.",Finance
+"Questions regarding my tuition and scholarship.",Finance

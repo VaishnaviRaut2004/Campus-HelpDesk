@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row mb-4 slide-in">
+    <div class="col-12">
+        <div class="glass-card p-4 d-flex justify-content-between align-items-center">
+            <h2 class="text-white fw-bold mb-0"><i class="fa-solid fa-shield-halved text-primary"></i> Administrator Panel</h2>
+            <div class="d-flex align-items-center">
+                <a href="{{ url_for('analytics_dashboard') }}" class="btn btn-info rounded-pill px-3 me-3"><i class="fa-solid fa-chart-pie"></i> Enterprise Analytics</a>
+                <form action="{{ url_for('add_department') }}" method="POST" class="d-flex inline-form">
+                    <input type="text" name="name" class="form-control form-control-sm me-2" placeholder="New Dept Name" required>
+                    <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3">Add Department</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row slide-in" style="animation-delay: 0.1s;">
+    <!-- Departments List -->
+    <div class="col-md-4 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white mb-3"><i class="fa-solid fa-building text-secondary"></i> Departments</h4>
+            <ul class="list-group list-group-flush bg-transparent">
+                {% for dept in departments %}
+                <li class="list-group-item bg-transparent text-white d-flex justify-content-between align-items-center border-secondary">
+                    {{ dept.name }}
+                    <a href="{{ url_for('delete_department', dept_id=dept.id) }}" class="btn btn-sm btn-outline-danger border-0"><i class="fa-solid fa-trash"></i></a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <!-- Active Users List -->
+    <div class="col-md-8 mb-4">
+        <div class="glass-card p-4 h-100">
+            <h4 class="text-white mb-3"><i class="fa-solid fa-users text-secondary"></i> Registered Users</h4>
+            <div style="max-height: 200px; overflow-y: auto;">
+                <table class="table table-sm table-glass align-middle text-white">
+                    <thead class="text-white">
+                        <tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for u in users %}
+                        <tr class="text-white">
+                            <td class="text-white">{{ u.id }}</td>
+                            <td class="text-white">{{ u.name }}</td>
+                            <td class="text-white">{{ u.email }}</td>
+                            <td class="text-white"><span class="badge bg-secondary">{{ u.role }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row slide-in" style="animation-delay: 0.2s;">
+    <div class="col-12">
+        <div class="glass-card p-4">
+            <h4 class="text-white mb-3"><i class="fa-solid fa-layer-group text-secondary"></i> Global Complaint Feed</h4>
+            
+            <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                <table class="table table-glass align-middle text-white">
+                    <thead class="text-white">
+                        <tr>
+                            <th>ID</th>
+                            <th>User</th>
+                            <th>Date</th>
+                            <th>Department & Confidence</th>
+                            <th>SLA</th>
+                            <th>Sentiment</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in complaints %}
+                        <tr class="text-white">
+                            <td class="text-white">#{{ c.id }}</td>
+                            <td class="text-white">{{ c.user.name }}</td>
+                            <td class="text-white">{{ c.date.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td class="text-white">
+                                {{ c.department.name }}<br>
+                                {% if c.confidence_score %}
+                                <small class="text-info">{{ c.confidence_score }}% AI Confidence</small>
+                                {% endif %}
+                            </td>
+                            <td class="text-white">
+                                {% if c.sla_deadline %}
+                                    {% set hours_left = (c.sla_deadline - now).total_seconds() / 3600 %}
+                                    {% if c.status == 'Resolved' %}
+                                        <span class="badge bg-success">Resolved</span>
+                                    {% elif hours_left < 0 %}
+                                        <span class="badge bg-danger">Overdue</span>
+                                    {% elif hours_left < 6 %}
+                                        <span class="badge bg-warning text-dark">Near Deadline</span>
+                                    {% else %}
+                                        <span class="badge bg-success">Within SLA</span>
+                                    {% endif %}
+                                {% else %}
+                                    <span class="badge bg-secondary">N/A</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-white">
+                                {% if c.sentiment == 'Angry' %}
+                                    <span class="badge bg-danger">Angry</span>
+                                {% elif c.sentiment == 'Frustrated' %}
+                                    <span class="badge bg-warning text-dark">Frustrated</span>
+                                {% elif c.sentiment == 'Positive' %}
+                                    <span class="badge bg-success">Positive</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Neutral</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-white">
+                                {% if c.priority == 'High' %}
+                                    <span class="badge badge-urgent"><i class="fa-solid fa-bolt"></i> High</span>
+                                {% else %}
+                                    <span class="badge bg-info">Normal</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-white">
+                                {% if c.status == 'Pending' %}
+                                    <span class="badge badge-pending">Pending</span>
+                                {% elif c.status == 'In Progress' %}
+                                    <span class="badge badge-progress">In Progress</span>
+                                {% elif c.status == 'Resolved' %}
+                                    <span class="badge badge-resolved">Resolved</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
