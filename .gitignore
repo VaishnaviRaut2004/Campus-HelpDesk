@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment
+.env
+venv/
+env/
+ENV/
+
+# Database files
+*.db
+*.sqlite3
+instance/
+
+# Uploads
+static/uploads/
+uploads/
+
+# IDE / OS files
+.vscode/
+.idea/
+.DS_Store
+*.swp
