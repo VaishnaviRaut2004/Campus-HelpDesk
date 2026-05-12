@@ -8,3 +8,4 @@ pandas==2.1.4
 vaderSentiment==3.3.2
 Werkzeug==3.0.1
 gunicorn==21.2.0
+eventlet==0.33.3
