@@ -8,3 +8,4 @@ scikit-learn
 pandas
 numpy
 vaderSentiment
+psycopg2-binary
